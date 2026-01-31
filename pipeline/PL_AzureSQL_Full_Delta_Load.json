@@ -100,7 +100,11 @@
 							"outputs": [
 								{
 									"referenceName": "ds_tgt_azuresql",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"schemaName": "@item().schema",
+										"tableName": "@item().table"
+									}
 								}
 							]
 						},
