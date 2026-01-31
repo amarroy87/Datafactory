@@ -1,0 +1,151 @@
+{
+	"name": "PL_AzureSQL_Full_Delta_Load",
+	"properties": {
+		"activities": [
+			{
+				"name": "LastSyncVersion",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@json('[\n  { \"schema\": \"hr\", \"table\": \"Employees\", \"pk\": \"EmployeeID\" },\n  { \"schema\": \"ref\", \"table\": \"Customers\", \"pk\": \"CustomerID\" },\n  { \"schema\": \"sales\", \"table\": \"Orders\", \"pk\": \"OrderID\" }\n]')\n",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "lkp_LastSync",
+							"type": "Lookup",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": "SELECT LastSyncVersion\nFROM dbo.ADF_Sync_Metadata\nWHERE SchemaName = '@{item().schema}'\n  AND TableName  = '@{item().table}'\n",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "ds_tgt_azuresql",
+									"type": "DatasetReference",
+									"parameters": {
+										"schemaName": "dbo",
+										"tableName": "ADF_Sync_Metadata"
+									}
+								}
+							}
+						},
+						{
+							"name": "Copy_Data",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": "DECLARE @last BIGINT = @{variables('LastSyncVersion')};\n\nIF @last = 0\nBEGIN\n    SELECT * FROM @{item().schema}.@{item().table};\nEND\nELSE\nBEGIN\n    SELECT *\n    FROM @{item().schema}.@{item().table}\n    WHERE CHANGE_TRACKING_VERSION > @last;\nEND\n",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "AzureSqlSink",
+									"writeBehavior": "upsert",
+									"upsertSettings": {
+										"useTempDB": true,
+										"keys": [
+											"@{item().pk}"
+										]
+									},
+									"sqlWriterUseTableLock": false,
+									"disableMetricsCollection": false
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_src_azuresql",
+									"type": "DatasetReference",
+									"parameters": {
+										"schemaName": {
+											"value": "@item().schema",
+											"type": "Expression"
+										},
+										"tableName": "@item().table"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_tgt_azuresql",
+									"type": "DatasetReference"
+								}
+							]
+						},
+						{
+							"name": "sp_UpdateLastSync",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [
+								{
+									"name": "@SchemaName",
+									"value": "@item().schema"
+								},
+								{
+									"name": "@TableName",
+									"value": "@item().table"
+								},
+								{
+									"name": "@LastSyncVersion",
+									"value": "@activity('Copy_Data').output.sourceMaxChangeVersion"
+								}
+							],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[usp_UpdateLastSyncVersion]"
+							},
+							"linkedServiceName": {
+								"referenceName": "ls_azsql_tgt",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			}
+		],
+		"variables": {
+			"LastSyncVersion": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}
