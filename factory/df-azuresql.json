@@ -1,0 +1,9 @@
+{
+	"name": "df-azuresql",
+	"location": "centralus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "6bd9c385-176d-490f-adfe-c8224d051da0",
+		"tenantId": "0a960acf-d489-4fa2-8fc5-fef078ec499d"
+	}
+}
