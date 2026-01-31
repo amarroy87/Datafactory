@@ -1,0 +1,24 @@
+{
+	"name": "ds_src_azuresql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_azsql_src",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"schemaName": {
+				"type": "string"
+			},
+			"tableName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "@dataset().schemaName",
+			"table": "@dataset().schemaName"
+		}
+	}
+}
