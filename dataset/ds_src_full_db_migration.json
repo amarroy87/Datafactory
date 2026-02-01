@@ -1,0 +1,12 @@
+{
+	"name": "ds_src_full_db_migration",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_azsql_src",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": []
+	}
+}
