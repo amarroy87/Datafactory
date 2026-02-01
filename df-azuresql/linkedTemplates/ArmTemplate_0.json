@@ -1,0 +1,289 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "df-azuresql"
+		},
+		"ls_azsql_src_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'ls_azsql_src'"
+		},
+		"ls_azsql_tgt_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'ls_azsql_tgt'"
+		},
+		"ls_azsql_src_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "azuresqlvm.database.windows.net"
+		},
+		"ls_azsql_src_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "azuresqldb1"
+		},
+		"ls_azsql_src_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "azureuser1"
+		},
+		"ls_azsql_tgt_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "azuresqlvm.database.windows.net"
+		},
+		"ls_azsql_tgt_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "azuresqldb2"
+		},
+		"ls_azsql_tgt_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "azureuser1"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_azsql_src')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('ls_azsql_src_properties_typeProperties_server')]",
+					"database": "[parameters('ls_azsql_src_properties_typeProperties_database')]",
+					"encrypt": "optional",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('ls_azsql_src_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('ls_azsql_src_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_azsql_tgt')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('ls_azsql_tgt_properties_typeProperties_server')]",
+					"database": "[parameters('ls_azsql_tgt_properties_typeProperties_database')]",
+					"encrypt": "optional",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('ls_azsql_tgt_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('ls_azsql_tgt_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_src_full_db_migration')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_azsql_src",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schemaName": {
+						"type": "string"
+					},
+					"tableName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schemaName",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().tableName",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_azsql_src')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_trg_full_db_migration')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_azsql_tgt",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schemaName": {
+						"type": "string"
+					},
+					"tableName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schemaName",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().tableName",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_azsql_tgt')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_src_full_db_migration')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ForEach_full_db_migration",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@json('[\n  {\"schema\":\"dbo\",\"table\":\"t1\"},\n  {\"schema\":\"dbo\",\"table\":\"t5\"},\n  {\"schema\":\"dbo\",\"table\":\"t6\"},\n  {\"schema\":\"dbo\",\"table\":\"t7\"},\n  {\"schema\":\"dbo\",\"table\":\"t8\"},\n  {\"schema\":\"hr\",\"table\":\"Employees\"},\n  {\"schema\":\"ref\",\"table\":\"Customers\"},\n  {\"schema\":\"sales\",\"table\":\"Orders\"}\n]')",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "Copy_Table",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "AzureSqlSink",
+											"writeBehavior": "insert",
+											"sqlWriterUseTableLock": false
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_src_full_db_migration",
+											"type": "DatasetReference",
+											"parameters": {
+												"schemaName": "@item().schema",
+												"tableName": "@item().table"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_trg_full_db_migration",
+											"type": "DatasetReference",
+											"parameters": {
+												"schemaName": "@item().schema",
+												"tableName": "@item().table"
+											}
+										}
+									]
+								},
+								{
+									"name": "Stored procedure disable 1",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[Disable_All_Constraints]"
+									},
+									"linkedServiceName": {
+										"referenceName": "ls_azsql_tgt",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Stored procedure enable 1",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[Enable_All_Constraints]"
+									},
+									"linkedServiceName": {
+										"referenceName": "ls_azsql_tgt",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_src_full_db_migration')]",
+				"[concat(variables('factoryId'), '/datasets/ds_trg_full_db_migration')]",
+				"[concat(variables('factoryId'), '/linkedServices/ls_azsql_tgt')]"
+			]
+		}
+	]
+}
