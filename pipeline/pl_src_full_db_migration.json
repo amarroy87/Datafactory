@@ -1,0 +1,117 @@
+{
+	"name": "pl_src_full_db_migration",
+	"properties": {
+		"activities": [
+			{
+				"name": "ForEach_full_db_migration",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@json('[\n  {\"schema\":\"dbo\",\"table\":\"t1\"},\n  {\"schema\":\"dbo\",\"table\":\"t5\"},\n  {\"schema\":\"dbo\",\"table\":\"t6\"},\n  {\"schema\":\"dbo\",\"table\":\"t7\"},\n  {\"schema\":\"dbo\",\"table\":\"t8\"},\n  {\"schema\":\"hr\",\"table\":\"Employees\"},\n  {\"schema\":\"ref\",\"table\":\"Customers\"},\n  {\"schema\":\"sales\",\"table\":\"Orders\"}\n]')",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Copy_Table",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "AzureSqlSink",
+									"writeBehavior": "insert",
+									"sqlWriterUseTableLock": false
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_src_full_db_migration",
+									"type": "DatasetReference",
+									"parameters": {
+										"schemaName": "@item().schema",
+										"tableName": "@item().table"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_trg_full_db_migration",
+									"type": "DatasetReference",
+									"parameters": {
+										"schemaName": "@item().schema",
+										"tableName": "@item().table"
+									}
+								}
+							]
+						},
+						{
+							"name": "Stored procedure disable 1",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[Disable_All_Constraints]"
+							},
+							"linkedServiceName": {
+								"referenceName": "ls_azsql_tgt",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "Stored procedure enable 1",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[Enable_All_Constraints]"
+							},
+							"linkedServiceName": {
+								"referenceName": "ls_azsql_tgt",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			}
+		],
+		"annotations": []
+	}
+}

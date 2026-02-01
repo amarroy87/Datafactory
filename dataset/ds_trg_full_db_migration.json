@@ -1,0 +1,24 @@
+{
+	"name": "ds_trg_full_db_migration",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_azsql_tgt",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"schemaName": {
+				"type": "string"
+			},
+			"tableName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "@dataset().schemaName",
+			"table": "@dataset().tableName"
+		}
+	}
+}
