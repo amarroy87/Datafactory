@@ -17,7 +17,14 @@
 						{
 							"name": "Copy_Table",
 							"type": "Copy",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "Store procedure triger disable",
+									"dependencyConditions": [
+										"Skipped"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -67,6 +74,53 @@
 									}
 								}
 							]
+						},
+						{
+							"name": "Store procedure triger disable",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[Disable_All_Constraints]"
+							},
+							"linkedServiceName": {
+								"referenceName": "ls_azsql_tgt",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "Stored procedure enable triger",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "Copy_Table",
+									"dependencyConditions": [
+										"Skipped"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[Enable_All_Constraints]"
+							},
+							"linkedServiceName": {
+								"referenceName": "ls_azsql_tgt",
+								"type": "LinkedServiceReference"
+							}
 						}
 					]
 				}
