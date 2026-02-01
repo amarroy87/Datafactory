@@ -81,14 +81,7 @@
 							"inputs": [
 								{
 									"referenceName": "ds_src_azuresql",
-									"type": "DatasetReference",
-									"parameters": {
-										"schemaName": {
-											"value": "@item().schema",
-											"type": "Expression"
-										},
-										"tableName": "@item().table"
-									}
+									"type": "DatasetReference"
 								}
 							],
 							"outputs": [
