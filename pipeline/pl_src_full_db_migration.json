@@ -17,14 +17,7 @@
 						{
 							"name": "Copy_Table",
 							"type": "Copy",
-							"dependsOn": [
-								{
-									"activity": "Store procedure triger disable",
-									"dependencyConditions": [
-										"Skipped"
-									]
-								}
-							],
+							"dependsOn": [],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -76,7 +69,7 @@
 							]
 						},
 						{
-							"name": "Store procedure triger disable",
+							"name": "Stored procedure disable 1",
 							"type": "SqlServerStoredProcedure",
 							"dependsOn": [],
 							"policy": {
@@ -96,16 +89,9 @@
 							}
 						},
 						{
-							"name": "Stored procedure enable triger",
+							"name": "Stored procedure enable 1",
 							"type": "SqlServerStoredProcedure",
-							"dependsOn": [
-								{
-									"activity": "Copy_Table",
-									"dependencyConditions": [
-										"Skipped"
-									]
-								}
-							],
+							"dependsOn": [],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
