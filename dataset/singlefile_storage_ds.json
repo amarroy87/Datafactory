@@ -1,0 +1,23 @@
+{
+	"name": "singlefile_storage_ds",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage_ls",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "Amar_Roy.docx",
+				"container": "testfolder"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
