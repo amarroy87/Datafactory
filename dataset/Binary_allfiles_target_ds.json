@@ -1,0 +1,16 @@
+{
+	"name": "Binary_allfiles_target_ds",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "FileServer_ls",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "FileServerLocation"
+			}
+		}
+	}
+}
