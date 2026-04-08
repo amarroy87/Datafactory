@@ -1,0 +1,6 @@
+{
+	"name": "self-integrationRuntime-poc",
+	"properties": {
+		"type": "SelfHosted"
+	}
+}
