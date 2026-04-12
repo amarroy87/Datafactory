@@ -1,0 +1,16 @@
+{
+	"name": "AzureSql_12April_source_ds",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "azuresql_120426_source_ls",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "@dataset().SchemaName",
+			"table": "@dataset().TableName"
+		}
+	}
+}
