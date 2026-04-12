@@ -1,0 +1,12 @@
+{
+	"name": "AzureSql_Lookup_ds",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "azuresql_120426_source_ls",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": []
+	}
+}

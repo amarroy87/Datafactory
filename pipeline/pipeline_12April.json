@@ -29,12 +29,8 @@
 						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "AzureSql_12April_source_ds",
-						"type": "DatasetReference",
-						"parameters": {
-							"SchemaName": "@item().TABLE_SCHEMA",
-							"TableName": "@item().TABLE_NAME"
-						}
+						"referenceName": "AzureSql_Lookup_ds",
+						"type": "DatasetReference"
 					},
 					"firstRowOnly": false
 				}
@@ -53,7 +49,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('LookupTables').output.value",
+						"value": "@activity('Lookup_12April').output.value",
 						"type": "Expression"
 					},
 					"batchCount": 5,
