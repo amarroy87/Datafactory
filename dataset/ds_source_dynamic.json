@@ -1,0 +1,24 @@
+{
+	"name": "ds_source_dynamic",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_azsql_src",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"SchemaName": {
+				"type": "string"
+			},
+			"TableName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "@dataset().SchemaName",
+			"table": "@dataset().TableName"
+		}
+	}
+}
