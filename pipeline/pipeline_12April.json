@@ -1,0 +1,168 @@
+{
+	"name": "pipeline_12April",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup_12April",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "sp_disable_12april",
+						"dependencyConditions": [
+							"Skipped"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT TABLE_SCHEMA, TABLE_NAME\nFROM INFORMATION_SCHEMA.TABLES\nWHERE TABLE_SCHEMA IN ('dbo','hr','sales','ref')",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureSql_12April_source_ds",
+						"type": "DatasetReference",
+						"parameters": {
+							"SchemaName": "@item().TABLE_SCHEMA",
+							"TableName": "@item().TABLE_NAME"
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEach_12April",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup_12April",
+						"dependencyConditions": [
+							"Skipped"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('LookupTables').output.value",
+						"type": "Expression"
+					},
+					"batchCount": 5,
+					"activities": [
+						{
+							"name": "Copy data1",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "AzureSqlSink",
+									"writeBehavior": "insert",
+									"sqlWriterUseTableLock": false
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "AzureSql_12April_source_ds",
+									"type": "DatasetReference",
+									"parameters": {
+										"SchemaName": "@item().TABLE_SCHEMA",
+										"TableName": "@item().TABLE_NAME"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "AzureSql_12April_target_ds",
+									"type": "DatasetReference",
+									"parameters": {
+										"SchemaName": "@item().TABLE_SCHEMA",
+										"TableName": "@item().TABLE_NAME"
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "sp_disable_12april",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[Disable_All_Constraints]"
+				},
+				"linkedServiceName": {
+					"referenceName": "Azuresql_12April26_target_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "sp_enable_12april",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "ForEach_12April",
+						"dependencyConditions": [
+							"Skipped"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[Enable_All_Constraints]"
+				},
+				"linkedServiceName": {
+					"referenceName": "Azuresql_12April26_target_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"annotations": []
+	}
+}
