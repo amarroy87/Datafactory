@@ -1,0 +1,24 @@
+{
+	"name": "sql_2nd_target_ds",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Azuresql_12April26_target_ls",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"SchemaName": {
+				"type": "string"
+			},
+			"TableName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "@dataset().SchemaName",
+			"table": "@dataset().TableName"
+		}
+	}
+}
