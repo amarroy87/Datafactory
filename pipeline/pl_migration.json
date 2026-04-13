@@ -7,22 +7,22 @@
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "sp_disable",
+						"activity": "Stored procedure1",
 						"dependencyConditions": [
-							"Skipped"
+							"Succeeded"
 						]
 					}
 				],
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@json('[\n  {\"schema\":\"dbo\",\"table\":\"t1\"},\n  {\"schema\":\"dbo\",\"table\":\"t5\"},\n  {\"schema\":\"dbo\",\"table\":\"t6\"},\n  {\"schema\":\"dbo\",\"table\":\"t7\"},\n  {\"schema\":\"dbo\",\"table\":\"t8\"},\n  {\"schema\":\"hr\",\"table\":\"Employees\"},\n  {\"schema\":\"ref\",\"table\":\"Customers\"},\n  {\"schema\":\"sales\",\"table\":\"Orders\"}\n]')",
+						"value": "@json('[\n  {\"schema\":\"dbo\",\"table\":\"t1\"},\n  {\"schema\":\"hr\",\"table\":\"Employees\"},\n  {\"schema\":\"ref\",\"table\":\"Customers\"},\n  {\"schema\":\"sales\",\"table\":\"Orders\"}\n]')",
 						"type": "Expression"
 					},
 					"isSequential": true,
 					"activities": [
 						{
-							"name": "Copy_data",
+							"name": "Copydata1",
 							"type": "Copy",
 							"dependsOn": [],
 							"policy": {
@@ -59,8 +59,8 @@
 									"referenceName": "ds_source_dynamic",
 									"type": "DatasetReference",
 									"parameters": {
-										"SchemaName": "@item().TABLE_SCHEMA",
-										"TableName": "@item().TABLE_NAME"
+										"SchemaName": "@item().schema",
+										"TableName": "@item().table"
 									}
 								}
 							],
@@ -69,8 +69,8 @@
 									"referenceName": "ds_target_dynamic",
 									"type": "DatasetReference",
 									"parameters": {
-										"SchemaName": "@item().TABLE_SCHEMA",
-										"TableName": "@item().TABLE_NAME"
+										"SchemaName": "@item().schema",
+										"TableName": "@item().table"
 									}
 								}
 							]
@@ -79,7 +79,7 @@
 				}
 			},
 			{
-				"name": "sp_disable",
+				"name": "Stored procedure1",
 				"type": "SqlServerStoredProcedure",
 				"dependsOn": [],
 				"policy": {
@@ -92,33 +92,6 @@
 				"userProperties": [],
 				"typeProperties": {
 					"storedProcedureName": "[dbo].[Disable_All_Constraints]"
-				},
-				"linkedServiceName": {
-					"referenceName": "ls_azsql_tgt",
-					"type": "LinkedServiceReference"
-				}
-			},
-			{
-				"name": "sp_enable",
-				"type": "SqlServerStoredProcedure",
-				"dependsOn": [
-					{
-						"activity": "ForEach1",
-						"dependencyConditions": [
-							"Skipped"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"storedProcedureName": "[dbo].[Enable_All_Constraints]"
 				},
 				"linkedServiceName": {
 					"referenceName": "ls_azsql_tgt",
