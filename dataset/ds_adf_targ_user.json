@@ -1,0 +1,24 @@
+{
+	"name": "ds_adf_targ_user",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adf_targ_user",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"schemaName": {
+				"type": "string"
+			},
+			"tableName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "@dataset().schemaName",
+			"table": "@dataset().tableName"
+		}
+	}
+}
