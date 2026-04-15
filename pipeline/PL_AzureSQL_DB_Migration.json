@@ -59,7 +59,12 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"storedProcedureName": "[Migration].[DisableConstraints]"
+								"storedProcedureName": "[Migration].[DisableConstraints]",
+								"storedProcedureParameters": {
+									"": {
+										"value": ""
+									}
+								}
 							},
 							"linkedServiceName": {
 								"referenceName": "ls_azsql_tgt",
