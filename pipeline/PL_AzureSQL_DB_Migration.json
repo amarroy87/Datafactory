@@ -23,7 +23,8 @@
 					"dataset": {
 						"referenceName": "DS_MigrationConfig",
 						"type": "DatasetReference"
-					}
+					},
+					"firstRowOnly": false
 				}
 			},
 			{
@@ -58,7 +59,17 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"storedProcedureName": "[Migration].[DisableConstraints]"
+								"storedProcedureName": "[Migration].[DisableConstraints]",
+								"storedProcedureParameters": {
+									"SchemaName": {
+										"value": "@item().TargetSchema",
+										"type": "String"
+									},
+									"TableName": {
+										"value": "@item().TargetTable",
+										"type": "String"
+									}
+								}
 							},
 							"linkedServiceName": {
 								"referenceName": "ls_azsql_tgt",
@@ -146,7 +157,17 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"storedProcedureName": "[Migration].[EnableConstraints]"
+								"storedProcedureName": "[Migration].[EnableConstraints]",
+								"storedProcedureParameters": {
+									"SchemaName": {
+										"value": "@item().TargetSchema",
+										"type": "String"
+									},
+									"TableName": {
+										"value": "@item().TargetTable",
+										"type": "String"
+									}
+								}
 							},
 							"linkedServiceName": {
 								"referenceName": "ls_azsql_tgt",
