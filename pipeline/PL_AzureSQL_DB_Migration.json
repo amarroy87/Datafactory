@@ -61,8 +61,111 @@
 							"typeProperties": {
 								"storedProcedureName": "[Migration].[DisableConstraints]",
 								"storedProcedureParameters": {
-									"": {
-										"value": ""
+									"SchemaName": {
+										"value": "@item().TargetSchema",
+										"type": "String"
+									},
+									"TableName": {
+										"value": "@item().TargetTable",
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "ls_azsql_tgt",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "Copy_TableData",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "SP_DisableConstraints",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "AzureSqlSink",
+									"writeBehavior": "insert",
+									"sqlWriterUseTableLock": false
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_Source_AzureSQL",
+									"type": "DatasetReference",
+									"parameters": {
+										"SchemaName": "@item().SourceSchema",
+										"TableName": "@item().SourceTable"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_Target_AzureSQL",
+									"type": "DatasetReference",
+									"parameters": {
+										"SchemaName": "@item().TargetSchema",
+										"TableName": "@item().TargetTable"
+									}
+								}
+							]
+						},
+						{
+							"name": "SP_EnableConstraints",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "Copy_TableData",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[Migration].[EnableConstraints]",
+								"storedProcedureParameters": {
+									"SchemaName": {
+										"value": "@item().TargetSchema",
+										"type": "String"
+									},
+									"TableName": {
+										"value": "@item().TargetTable",
+										"type": "String"
 									}
 								}
 							},
