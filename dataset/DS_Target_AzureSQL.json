@@ -1,0 +1,24 @@
+{
+	"name": "DS_Target_AzureSQL",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_azsql_tgt",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"SchemaName": {
+				"type": "string"
+			},
+			"TableName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "@dataset().SchemaName",
+			"table": "@dataset().TableName"
+		}
+	}
+}

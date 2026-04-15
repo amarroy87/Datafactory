@@ -1,0 +1,16 @@
+{
+	"name": "DS_MigrationConfig",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_azsql_tgt",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "Migration",
+			"table": "MigrationConfig"
+		}
+	}
+}
