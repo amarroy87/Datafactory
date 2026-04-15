@@ -98,7 +98,6 @@
 							"typeProperties": {
 								"source": {
 									"type": "AzureSqlSource",
-									"sqlReaderQuery": "SELECT * \nFROM [@{dataset().SchemaName}].[@{dataset().TableName}]",
 									"queryTimeout": "02:00:00",
 									"partitionOption": "None"
 								},
